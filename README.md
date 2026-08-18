@@ -1,6 +1,6 @@
 # CloudSports
 
-I have been missing sports this summer, so I decided to build some of it in Azure.
+I have been missing sports this summer... so to create some excitement and think about sports, I am going to build some in Azure.
 
 CloudSports is a hypothetical Azure architecture project built around professional sports teams in the Northeast. The goal is to use a sports organization as a way to work through real cloud design questions: identity, RBAC, subscriptions, landing zones, networking, availability, and scaling for things like playoff games and draft days.
 
