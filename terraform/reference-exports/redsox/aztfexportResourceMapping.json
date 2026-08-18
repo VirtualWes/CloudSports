@@ -1,0 +1,17 @@
+{
+	"/subscriptions/ad5c68b6-779c-4514-a4bf-f134fbcf1e0e/resourceGroups/rg-cloudsports-mlb-redsox": {
+		"resource_id": "/subscriptions/ad5c68b6-779c-4514-a4bf-f134fbcf1e0e/resourceGroups/rg-cloudsports-mlb-redsox",
+		"resource_type": "azurerm_resource_group",
+		"resource_name": "res-0"
+	},
+	"/subscriptions/ad5c68b6-779c-4514-a4bf-f134fbcf1e0e/resourceGroups/rg-cloudsports-mlb-redsox/providers/Microsoft.Network/virtualNetworks/vnet-cloudsports-mlb-redsox-eus2": {
+		"resource_id": "/subscriptions/ad5c68b6-779c-4514-a4bf-f134fbcf1e0e/resourceGroups/rg-cloudsports-mlb-redsox/providers/Microsoft.Network/virtualNetworks/vnet-cloudsports-mlb-redsox-eus2",
+		"resource_type": "azurerm_virtual_network",
+		"resource_name": "res-1"
+	},
+	"/subscriptions/ad5c68b6-779c-4514-a4bf-f134fbcf1e0e/resourceGroups/rg-cloudsports-mlb-redsox/providers/Microsoft.Network/virtualNetworks/vnet-cloudsports-mlb-redsox-eus2/subnets/defaultsnet-workload": {
+		"resource_id": "/subscriptions/ad5c68b6-779c-4514-a4bf-f134fbcf1e0e/resourceGroups/rg-cloudsports-mlb-redsox/providers/Microsoft.Network/virtualNetworks/vnet-cloudsports-mlb-redsox-eus2/subnets/defaultsnet-workload",
+		"resource_type": "azurerm_subnet",
+		"resource_name": "res-2"
+	}
+}
