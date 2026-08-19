@@ -1,90 +1,169 @@
-# CloudSports
+CloudSports
+CloudSports is my hands-on Azure and Terraform project. I’m using a fictional sports organization as the setting so I can build something larger than a one-off lab: shared platform services, league networks, team workloads, identity, monitoring, security, and Infrastructure as Code.
 
-I have been missing sports this summer... so to create some excitement and think about sports, I am going to build some in Azure.
+The first phase covers teams in Boston, Philadelphia, and the New York City metro area across MLB, NBA, NFL, and NHL. I’ll add the WNBA later.
 
-CloudSports is a hypothetical Azure architecture project built around professional sports teams in the Northeast. The goal is to use a sports organization as a way to work through real cloud design questions: identity, RBAC, subscriptions, landing zones, networking, availability, and scaling for things like playoff games and draft days.
+I’m building this gradually—first by creating a few resources manually to understand Azure, then by bringing the design under Terraform and making it repeatable.
 
-This is not affiliated with Microsoft, any league, or any sports team. It is a hands-on learning and portfolio project.
+What I’m building
+The long-term idea is a shared CloudSports platform with league and team workloads.
 
-## Scope
+Each league will have shared services and a hub-and-spoke network design.
 
-The first version covers teams in the Boston, Philadelphia, and NYC areas.
+Each team will have its own resource group, workload network, applications, and eventually its own Terraform state.
 
-Leagues in the first phase:
+League-level services may include shared networking, monitoring, Azure Virtual Desktop, cost controls, and security standards.
 
-- MLB
-- NBA
-- NFL
-- NHL
+Teams will eventually host fictional websites, applications, and databases.
 
-I plan to add the WNBA later.
+Fans and media are application users, not Azure administrators.
 
-Each league will have its own subscription so it can be responsible for its own Azure usage and costs. Each league will have shared services along with separate team workloads.
+Scope
+Cities
+Boston
 
-## What I am building
+Philadelphia
 
-The idea is to build the first league manually so I can understand the pieces, then use Terraform to repeat the pattern for the next league.
+New York City metro area
 
-Each league will eventually include:
+Leagues
+MLB
 
-- Shared league services
-- A hub-and-spoke network design
-- Team resource groups
-- A basic team website
-- A fictional app and database
-- League-level Azure Virtual Desktop
-- Identity and role-based access for different types of users
-- Regional availability and time-zone considerations
-- A plan for scaling during playoffs, draft days, and other major events
+NBA
 
-## Current design
+NFL
 
-```text
-CloudSports Management Group
-|
-└── League Subscription
-    |
-    ├── Shared Services / Hub
-    ├── Team Resource Group
-    ├── Team Resource Group
-    └── Team Resource Group
-```
+NHL
 
-The plan is to use one Microsoft Entra tenant for the project. I created a CloudSports management group and moved my existing Azure subscription under it.
+WNBA is planned for a later phase
 
-## Entra groups
+Initial teams
+League	Boston	Philadelphia	NYC metro
+MLB	Red Sox	Phillies	Yankees, Mets
+NBA	Celtics	76ers	Knicks, Nets
+NFL	Patriots	Eagles	Giants, Jets
+NHL	Bruins	Flyers	Rangers, Islanders, Devils
+WNBA later	—	—	Liberty
+Design direction
+The project uses the existing Microsoft Entra tenant and an Azure management group named cloudsports.
 
-The first identity groups created for the project are:
+The eventual structure is:
 
-- CloudSports-Commissioner
-- CloudSports-Managers
-- CloudSports-TechSupport
-- CloudSports-Players
-- CloudSports-Fans
-- CloudSports-Media
+text
+CloudSports platform
+├── Platform services
+│   ├── Terraform state backend
+│   ├── Identity and RBAC
+│   ├── Monitoring
+│   └── Security and governance
+├── League shared services
+│   └── Hub networks, shared services, and league controls
+└── Team workloads
+    └── Team resource groups, spoke VNets, applications, and team-owned state
+The goal is to separate ownership over time:
 
-I will decide which Azure roles each group needs as the subscription and workloads are built. Not every group will need Azure access. For example, Fans and Media may only need access to an application or website instead of Azure resources.
+Platform administrators manage shared governance and the Terraform backend.
 
-## Current build status
+League platform administrators manage league hubs and shared services.
 
-- [x] Created the CloudSports GitHub project
-- [x] Created CloudSports Entra security groups
-- [x] Created the `cloudsports` management group
-- [x] Moved the existing Azure subscription under CloudSports
-- [ ] Create the first shared resource group for the MLB subscription
-- [ ] Create team resource groups
-- [ ] Build the first network and workload
-- [ ] Document RBAC assignments
-- [ ] Add Terraform to repeat the pattern for another league
+Teams manage their own workload infrastructure within defined RBAC and networking boundaries.
 
-## Repository layout
+Terraform and state
+Terraform is the Infrastructure as Code tool for this project.
 
-```text
-docs/          Architecture notes and design decisions
-manual-build/  Notes from building the first league manually
-terraform/     Infrastructure-as-code work for later league deployments
-```
+I started with a manual reference build, exported the Red Sox configuration as Terraform reference code, and used that pattern to build the Phillies network with Terraform.
 
-## Notes
+Terraform state is stored remotely in Azure Blob Storage:
 
-I am building this out in stages and documenting decisions as I go. The goal is not to pretend this is a real sports organization. The goal is to make the exercise realistic enough to practice the architecture decisions that come up in a real multi-team, multi-region organization.
+text
+Resource group:  rg-cloudsports-platform-bootstrap-eus2
+Storage account: stcloudsportstfstate
+Container:       tfstate
+The backend uses Microsoft Entra ID authentication instead of Storage account keys. Blob versioning, blob soft delete, container soft delete, and Azure Blob state locking are enabled.
+
+The first remote state key is:
+
+text
+teams/phillies/network.tfstate
+The repository will move toward reusable modules and separate root configurations for platform, league, and team workloads:
+
+text
+terraform/
+├── modules/
+│   ├── team-spoke/
+│   ├── hub-network/
+│   ├── monitoring/
+│   ├── rbac/
+│   └── team-workload/
+├── live/
+│   ├── platform/
+│   ├── leagues/
+│   └── teams/
+└── reference-exports/
+Current progress
+Completed
+Created the cloudsports management group.
+
+Created Microsoft Entra groups for commissioners, managers, technical support, players, fans, and media.
+
+Created the MLB shared resource group and hub VNet manually.
+
+Created the Red Sox resource group, VNet, and workload subnet manually.
+
+Exported the Red Sox infrastructure as Terraform reference code.
+
+Built and deployed the Phillies network with Terraform:
+
+rg-cloudsports-mlb-phillies
+
+vnet-cloudsports-mlb-phillies-eus2
+
+snet-workload
+
+Created the Azure Storage account used for remote Terraform state.
+
+Assigned Storage Blob Data Contributor to the administrator identity.
+
+Confirmed Terraform can lock, read, and update Phillies remote state.
+
+Enabled blob versioning and 30-day blob/container soft delete for state recovery.
+
+Confirmed the Phillies configuration has no drift from Azure.
+
+Network address plan
+Team or service	VNet address space	Workload subnet
+MLB shared hub	10.10.0.0/16	Shared services subnet
+Red Sox	10.11.0.0/16	10.11.0.0/24
+Phillies	10.12.0.0/16	10.12.0.0/24
+Mets	10.13.0.0/16	10.13.0.0/24
+Yankees	10.14.0.0/16	10.14.0.0/24
+Next steps
+Commit the current Terraform configuration and documentation.
+
+Build reusable Terraform modules for team spokes and shared services.
+
+Import the manually created Red Sox network into a dedicated Red Sox Terraform state.
+
+Export and import the MLB shared hub resources into a league-owned state.
+
+Add hub-to-spoke VNet peering.
+
+Add monitoring, budgets, RBAC, and security controls.
+
+Add team workloads such as a website and database.
+
+Add GitHub Actions with OpenID Connect for controlled Terraform plans and applies.
+
+Expand the pattern to the rest of MLB, then NBA, NFL, NHL, and WNBA.
+
+Working locally
+Terraform runs locally through VS Code using Azure CLI authentication:
+
+powershell
+az login
+terraform init
+terraform plan
+terraform apply
+Always run Terraform from the root folder for the component you are managing. Each root will have its own backend.tf and remote state key.
+
+Do not commit Terraform state files, Azure credentials, access keys, or secrets.
